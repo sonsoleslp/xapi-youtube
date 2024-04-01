@@ -1,0 +1,23 @@
+<iframe style="width:700px;height:450px;" id="video-xapi" src="https://sonsoles.me/xapi-youtube/"></iframe>
+<script>
+    document.body.onload = function() {
+        /* Configuration */
+        var endpoint = "YOUR_DOMAIN_WITHOUT_HTTPS/data/xAPI/"; // Your LRS endpoint
+        var user = "YOUR_USER"; // Your LRS client user
+        var password = "YOUR_PASSWORD"; // Your LRS client secret
+        var video = "fK29-99vW48"; // Youtube video code
+        /* */
+
+        /* Customize how to get student id */
+        var student = document.querySelector("a[title='View profile']").innerText;
+        /* */
+
+        var iframeSrc = document.getElementById("video-xapi").src +
+            "?endpoint=https" + "://" + endpoint +
+            "&user=" + user +
+            "&password=" + password +
+            "&video=" + video +
+            "&student=" + (student);
+        document.getElementById("video-xapi").setAttribute("src", iframeSrc);
+    };
+</script>
