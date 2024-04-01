@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="height:100%;">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
@@ -12,41 +12,20 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 
-<body>
-
-  <section class="container">
-
-    <div class="page-header">
-      <h1 class="text-primary"><i class="fa fa-youtube"></i> xAPI Youtube Video Tracking</h1>
-      <h3 class="text-muted">Send Youtube Video interactions to an LRS with xAPI</h3>
-    </div>
-
-    <div class="row">
-
-      <div class="form-group col-md-12">
-
-        <div id="player"></div>
-
-        <p>This example uses minimal javascript and the youtube <a href="https://developers.google.com/youtube/iframe_api_reference" target="_blank">iframe API</a>.</p>
-        <p>Statements are built with xapi-youtube-statements.js and dispatched to an LRS with xapiwrapper.min.js using a custom ADL.XAPIYoutubeStatements.onStateChangeCallback function.</p>
-        <p>You can view statements <a href="http://adlnet.github.io/xapi-statement-viewer/">with the statement viewer</a>.</p>
-
-      </div><!-- .col-md-12 -->
-
-    </div><!-- .row -->
-
-  </section><!-- .container -->
-
+<body style="height:100%;">
+  <div id="player" style="height:100%;"></div>
   <script type="text/javascript" src="lib/xapiwrapper.min.js"></script>
   <script type="text/javascript" src="src/videoprofile.js"></script>
   <script type="text/javascript" src="src/xapi-youtube-statements.js"></script>
 
   <script>
+  const searchParams = new URLSearchParams(window.location.search);
 
-  var video = "tlBbt5niQto"; // Change this to your video ID
+  var video = searchParams.get("video") || "tlBbt5niQto"; // Change this to your video ID
 
   var myXAPI = {};
 
+  var title = video;
   ADL.launch(function (err, launchdata, xAPIWrapper) {
     if (!err) {
       ADL.XAPIWrapper = xAPIWrapper;
@@ -57,16 +36,17 @@
         myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/launch/no-customData"}]}};
       }
     } else {
+      
       ADL.XAPIWrapper.changeConfig({
-        "endpoint":"https://lrs.adlnet.gov/xapi/",
-        "user":"xapi-workshop",
-        "password":"password1234"
+        "endpoint": searchParams.get("endpoint") ,
+        "user": searchParams.get("user"),
+        "password": searchParams.get("password")
       });
-      myXAPI.actor = {account: {homePage:"http://example.com/watch-video", name: "youtube"}};
+      myXAPI.actor = {account: {homePage:"http://example.com/watch-video", name: searchParams.get("student") || "Slp"}};
       myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/non-launch"}]}};
     }
 
-    myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": video}}};
+    myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": title}}};
 
     ADL.XAPIYoutubeStatements.changeConfig(myXAPI);
 
@@ -80,17 +60,26 @@
   }
 
   var player;
+
+  function onReady (event) {
+    ADL.XAPIYoutubeStatements.onPlayerReady(event);
+    title = player.getVideoData().title;
+    myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": title}}};
+    ADL.XAPIYoutubeStatements.changeConfig(myXAPI);
+  }
   function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
-      height: '390',
-      width: '640',
+      height: '100%',
+      width: '100%',
       videoId: video,
       playerVars: { 'autoplay': 0, 'disablekb': 1 },
       events: {
-        'onReady': ADL.XAPIYoutubeStatements.onPlayerReady,
+        'onReady': onReady,
         'onStateChange': ADL.XAPIYoutubeStatements.onStateChange
       }
     });
+    
+
   }
 
   initYT();
