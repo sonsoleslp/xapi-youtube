@@ -6,6 +6,7 @@
         var user = "YOUR_USER"; // Your LRS client user
         var password = "YOUR_PASSWORD"; // Your LRS client secret
         var video = "fK29-99vW48"; // Youtube video code
+         var course = "Databases"L // The name of your course
         /* */
 
         /* Customize how to get student id */
@@ -16,6 +17,7 @@
             "?endpoint=https" + "://" + endpoint +
             "&user=" + user +
             "&password=" + password +
+            "&course=" + course +
             "&video=" + video +
             "&student=" + (student);
         document.getElementById("video-xapi").setAttribute("src", iframeSrc);
