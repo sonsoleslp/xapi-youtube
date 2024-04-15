@@ -32,7 +32,17 @@
       this.onPlayerReady = function(event) {
         var message = "yt: player ready";
         log(message);
-        window.onunload = exitVideo;
+        window.addEventListener("beforeunload", function(event) {
+          // Recommended
+          event.preventDefault();
+
+          // Included for legacy support, e.g. Chrome/Edge < 119
+          event.returnValue = true;
+
+          exitVideo(event)
+        });
+        
+
       }
 
       this.onStateChange = function(event) {
@@ -41,6 +51,7 @@
         var stmt = null;
         var e = "";
         switch(event.data) {
+
           case -1:
             e = "unstarted";
             log("yt: " + e);
@@ -70,6 +81,16 @@
             break;
           default:
         }
+        if (stmt){
+          ADL.XAPIWrapper.sendStatement(stmt);
+        }
+      }
+      this.onPlaybackRateChange = function(event) {
+        var curTime = player.getCurrentTime().toString();
+        var ISOTime = "PT" + curTime.slice(0, curTime.indexOf(".")+3) + "S";
+        var stmt =  playbackRateVideo(ISOTime, event.data);
+        var e =  "interacted";
+        log("yt: " + e);
         if (stmt){
           ADL.XAPIWrapper.sendStatement(stmt);
         }
@@ -117,6 +138,21 @@
           return seekVideo(ISOTime);
         }
 
+        return buildStatement(stmt);
+      }
+
+      function playbackRateVideo(ISOTime, speed) {
+        var stmt = {};
+
+        // calculate time from paused state
+
+        log("yt: interacted");
+       
+        stmt.verb = {
+          id: ADL.videoprofile.references.interacted['@id'],
+          display: {"en-US": "playback-rate-changed"}
+        }
+        stmt.result = {"extensions":{"resultExt:speed":speed}};
         return buildStatement(stmt);
       }
 
@@ -168,7 +204,7 @@
 
         return buildStatement(stmt);
       }
-
+      
       function exitVideo() {
         if (!started) {
           return;
@@ -185,6 +221,7 @@
             display: { "en-US": "terminated" }
           };
           // 'abandoned' statement for incomplete video
+
         } else {
           e = "abandoned";
           stmt.verb = {
@@ -192,9 +229,18 @@
             display: { "en-US": "abandoned" }
           };
         }
-
-        // send statement immediately to avoid event delay
-        ADL.XAPIWrapper.sendStatement(buildStatement(stmt));
+        let statementBuilt = buildStatement(stmt)
+        fetch(ADL.XAPIWrapper.lrs.endpoint + "statements", {
+          keepalive: true,
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+             'Content-Type': 'application/json',
+             'Authorization': ADL.XAPIWrapper.lrs.auth,
+             'X-Experience-Api-Version':"1.0.1"
+           },
+           body: JSON.stringify(statementBuilt)
+         });
       }
 
     }
@@ -203,5 +249,6 @@
 
     ADL.XAPIYoutubeStatements.onPlayerReadyCallback = function(message) {};
     ADL.XAPIYoutubeStatements.onStateChangeCallback = function(stmt) {};
+    ADL.XAPIYoutubeStatements.onPlaybackRateChangeCallback = function(stmt) {};
 
 }(window.ADL = window.ADL || {}));

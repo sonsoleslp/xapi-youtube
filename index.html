@@ -22,7 +22,7 @@
   const searchParams = new URLSearchParams(window.location.search);
 
   var video = searchParams.get("video") || "tlBbt5niQto"; // Change this to your video ID
-
+  var courseName = searchParams.get("course");
   var myXAPI = {};
 
   var title = video;
@@ -46,6 +46,21 @@
       myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/non-launch"}]}};
     }
 
+    if (searchParams.get("course")) {
+      try {
+        myXAPI.context.contextActivities.grouping.push({
+            "id": "http://adlnet.gov/event/xapiworkshop/non-launch",
+            "definition": {
+              "type": "http://id.tincanapi.com/activitytype/lms/course",
+              "name": {
+                "en": searchParams.get("course")
+              } 
+            },
+            "objectType": "Activity"
+          }
+          )
+      } catch(e){}
+    }
     myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": title}}};
 
     ADL.XAPIYoutubeStatements.changeConfig(myXAPI);
@@ -75,7 +90,8 @@
       playerVars: { 'autoplay': 0, 'disablekb': 1 },
       events: {
         'onReady': onReady,
-        'onStateChange': ADL.XAPIYoutubeStatements.onStateChange
+        'onStateChange': ADL.XAPIYoutubeStatements.onStateChange,
+        'onPlaybackRateChange': ADL.XAPIYoutubeStatements.onPlaybackRateChange,
       }
     });
     
