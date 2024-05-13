@@ -5,16 +5,16 @@ This script uses [YouTube's iframe API](https://developers.google.com/youtube/if
 
 These statements can be dispatched to an LRS with xapiwrapper.min.js using a custom ADL.XAPIYoutubeStatements.onStateChangeCallback function.
 
-Check out http://adlnet.github.io/xapi-youtube for a live demo.
+Check out http://sonsoleslp.github.io/xapi-youtube for a live demo.
 
-This script also uses [xAPI Launch](https://github.com/adlnet/xapi-launch) to establish the connection to the LRS from our application.
+This script also uses [xAPI Launch](https://github.com/sonsoleslp/xapi-launch) to establish the connection to the LRS from our application.
 
 ## Installing
 
-`git clone https://github.com/adlnet/xapi-youtube` or download using the download [link](https://github.com/adlnet/xapi-youtube/archive/master.zip) 
+`git clone https://github.com/sonsoleslp/xapi-youtube` or download using the download [link](https://github.com/sonsoleslp/xapi-youtube/archive/master.zip) 
 
 ## Configuration
-
+**TO BE UPDATED**
 In index.html change:
 
 Video ID
